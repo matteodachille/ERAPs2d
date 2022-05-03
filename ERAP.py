@@ -543,6 +543,7 @@ def gen_points_type1(n_points,dim):
 
 
 
+
 "Koch-Cèsaro like fractals"
 
 
