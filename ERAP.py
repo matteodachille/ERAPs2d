@@ -286,8 +286,15 @@ def us1(n,r=1./np.pi):
     norm = (np.linalg.norm(v,axis=1)*np.ones_like(v).T).T
     return r*v/norm
 
-def uD1(n,r = 1./np.pi):
+def uD1(n,r = 1./np.pi): # random variables following the uniform distribution over a disk
     radii = np.random.uniform(0,r,n)
+    thetas = np.random.uniform(0,2*np.pi,n)
+    X = np.sqrt(radii)*np.cos(thetas)
+    Y = np.sqrt(radii)*np.sin(thetas)
+    return np.array([X,Y]).T
+
+def uA1(n,r_larger = 1./np.pi,r_smaller= 0.5/np.pi): # random variables following the uniform distribution over an annuluse 
+    radii = np.random.uniform(r_smaller,r_larger,n)
     thetas = np.random.uniform(0,2*np.pi,n)
     X = np.sqrt(radii)*np.cos(thetas)
     Y = np.sqrt(radii)*np.sin(thetas)
@@ -754,16 +761,16 @@ class Instance:
                  reds =  np.nan,\
                  k = np.nan,\
                  dH = 1.666,\
-                 s = 1
-                ):
-
+                 s = 1,\
+                 l1_blue=1, l2_blue=1, l1_red=1, l2_red=1,\
+                 Radius_larger_blue=1,Radius_larger_red=1,Radius_smaller_blue=0,Radius_smaller_red=0): 
         ''' Standard constructor for an Instance object
 
         Parameters:
         n: int
             number of points
         model: string (optional, default='toro')
-            specifies the kind of boundary conditions: quadrato, toro, cilindro, moebius, klein
+            specifies the kind of boundary conditions: quadrato, toro, cilindro, moebius, klein, RP2, Blue_square_Red_rectangle, Blue_disk_Red_disk, Blue_disk_Red_annuluse  
         l1: float (optional, default=1)
             length of domain side along 'x' axis
         l2: float (optional, default=1)
@@ -781,13 +788,25 @@ class Instance:
         self.p = p
         self.model = model
         self.s = s # Attractive (s=-1) or repulsive (s=+1) where applicable
-
-
+        self.l1_blue = l1_blue
+        self.l2_blue = l2_blue
+        self.l1_red = l1_red
+        self.l2_red = l2_red
+        self.Radius_larger_blue=Radius_larger_blue
+        self.Radius_larger_red=Radius_larger_red
+        self.Radius_smaller_blue=Radius_smaller_blue
+        self.Radius_smaller_red=Radius_smaller_red
         ## Allocation of blue points
-
         if (np.isnan(blues).any()): ## New instance is generated according to kind
-            if (kind=='pp'):
-                self.blues = rect_dis(l1,l2,n) ## Easiest one
+            if (kind=='pp'):     
+                if (model=='Blue_square_Red_rectangle'):
+                    self.blues = rect_dis(self.l1_blue,self.l2_blue,n) 
+                elif (model=='Blue_disk_Red_disk'):
+                    self.blues = uD1(n,r=Radius_larger_blue) 
+                elif (model=='Blue_disk_Red_annuluse'):
+                    self.blues = uA1(n,r_larger=Radius_larger_blue,r_smaller=Radius_smaller_blue) 
+                else:
+                    self.blues = rect_dis(l1,l2,n) ## Easiest one
                 self.kind = 'pp'
 
             elif (kind=='gp'):
@@ -836,8 +855,14 @@ class Instance:
         if (np.isnan(reds).any()): ## If red points are not given, generate them according to model
 
             if (kind=='pp' or kind =='gp'):
-
-                self.reds = rect_dis(l1,l2,n)
+                if (model=='Blue_square_Red_rectangle'):
+                    self.reds = rect_dis(self.l1_red,self.l2_red,n) 
+                elif (model=='Blue_disk_Red_disk'):
+                    self.reds = uD1(n,r=Radius_larger_red) 
+                elif (model=='Blue_disk_Red_annuluse'):
+                    self.reds = uA1(n,r_larger=Radius_larger_red,r_smaller=Radius_smaller_red) 
+                else:
+                    self.reds = rect_dis(l1,l2,n)
 
             if (kind=='kgp'):
 
@@ -891,7 +916,7 @@ class Instance:
                 self.cmat = dist_moebius(self.l1,self.l2,self.blues,self.reds)
             elif(self.model=='klein'):
                 self.cmat = dist_klein(self.l1,self.l2,self.blues,self.reds)
-            elif(self.model=='quadrato'):
+            elif(self.model=='quadrato' or self.model=='Blue_square_Red_rectangle' or self.model=='Blue_disk_Red_disk' or self.model=='Blue_disk_Red_annuluse'):
                 self.cmat = distance.cdist(self.blues,self.reds,metric='sqeuclidean')
             elif(self.model=='RP2'):
                  self.cmat = dist_RP2(self.l1,self.l2,self.blues,self.reds)
@@ -901,7 +926,7 @@ class Instance:
                     self.cmat = np.log(dist_toro(self.l1,self.l2,self.blues,self.reds)**.5)
                 else:
                     self.cmat = (dist_toro(self.l1,self.l2,self.blues,self.reds))**(self.p/2.)
-            elif(self.model=='quadrato'):
+            elif(self.model=='quadrato'or self.model=='Blue_square_Red_rectangle' or self.model=='Blue_disk_Red_disk' or self.model=='Blue_disk_Red_annuluse'):
                 if (self.p==0):
                     self.cmat = np.log(distance.cdist(self.blues,self.reds,metric='euclidean'))
                 else:
@@ -971,7 +996,7 @@ class Instance:
             dX = list(map(agg_x,tf_naive.T[0]))
             dY = tf_naive.T[1]
 
-        elif (self.model=='quadrato'):
+        elif (self.model=='quadrato'or self.model=='Blue_square_Red_rectangle' or self.model=='Blue_disk_Red_disk' or self.model=='Blue_disk_Red_annuluse'):
             dX = list(tf_naive.T[0])
             dY = list(tf_naive.T[1])
 
