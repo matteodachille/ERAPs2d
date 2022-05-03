@@ -1202,22 +1202,22 @@ class Instance:
             plt.title("Local angles, p="+str(self.p)+", n="+str(self.n)+r', $H_{\rm opt}$='+str(round(self.cost_min,4)))
             sns.heatmap(angles_2d,cmap='hsv',vmin=-np.pi,vmax=np.pi);
 
-    def plot_ft(self):
-        '''Displays absolute value of DFT of components in logarithmic scale'''
-        if (not self.is_solved):
-            self.solve()
-        else:
-            dFtx,dFty = self.dft_2d(components=True);
-            plt.figure(figsize=(17,6));plt.grid();
-            plt.subplot(1,2,1);
-            M1 = np.log(np.abs(np.fft.fftshift(dFtx)));
-            plt.title(r'$\log{<|(\mathcal{F}[\mu_1])(z)|>}$');
-            sns.heatmap(M1,cmap='viridis');
-            plt.subplot(1,2,2);
-            M2 = np.log(np.abs(np.fft.fftshift(dFty)));
-            plt.title(r'$\log{<|(\mathcal{F}[\mu_2])(z)|>}$');
-            sns.heatmap(M2,cmap='gnuplot');
-            #plt.show();
+    # def plot_ft(self):
+    #     '''Displays absolute value of DFT of components in logarithmic scale'''
+    #     if (not self.is_solved):
+    #         self.solve()
+    #     else:
+    #         dFtx,dFty = self.dft_2d(components=True);
+    #         plt.figure(figsize=(17,6));plt.grid();
+    #         plt.subplot(1,2,1);
+    #         M1 = np.log(np.abs(np.fft.fftshift(dFtx)));
+    #         plt.title(r'$\log{<|(\mathcal{F}[\mu_1])(z)|>}$');
+    #         sns.heatmap(M1,cmap='viridis');
+    #         plt.subplot(1,2,2);
+    #         M2 = np.log(np.abs(np.fft.fftshift(dFty)));
+    #         plt.title(r'$\log{<|(\mathcal{F}[\mu_2])(z)|>}$');
+    #         sns.heatmap(M2,cmap='gnuplot');
+    #         #plt.show();
 
     def plot_cavity_fields(self):
         '''Displays the cavity fields associated to the optimal assignment'''
