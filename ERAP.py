@@ -1177,13 +1177,18 @@ class Instance:
         plt.grid(linestyle='--');
         if (self.model=='toro' or self.model == 'cilindro' or self.model=='moebius'):
             plt.xlim(-.05,self.l1+.05);plt.ylim(-.05,self.l2+.05); ## In order to see links that go the other way round
-        elif (self.model=='quadrato'):
+        elif (self.model=='quadrato'):                        
             if (self.kind=='sierpinski'):
                 plt.xlim(0,1);plt.ylim(-1,1);
             if (self.kind=='kochcesaro'):
                 plt.xlim(0,2);plt.ylim(-1,1);
             else:
                 plt.xlim(0,self.l1);plt.ylim(0,self.l2);
+        elif (self.model=='Blue_square_Red_rectangle'):  
+           plt.xlim(0,max(self.l1_blue,self.l1_red));plt.ylim(0,max(self.l2_blue,self.l2_red)); 
+        elif (self.model=='Blue_disk_Red_disk' or self.model=='Blue_disk_Red_annuluse'): 
+            plt.xlim(-max(self.Radius_larger_blue,self.Radius_larger_red)*1.5,max(self.Radius_larger_blue,self.Radius_larger_red)*1.5);
+            plt.ylim(-max(self.Radius_larger_blue,self.Radius_larger_red)*1.5,max(self.Radius_larger_blue,self.Radius_larger_red)*1.5);
         plt.margins(y=0)
         plt.scatter(self.blues.T[0],self.blues.T[1],c="blue",s=5);plt.scatter(self.reds.T[0],self.reds.T[1],c="red",s=5);
         if(self.is_solved):
@@ -1198,7 +1203,7 @@ class Instance:
                     agg_x = partial(aggiusta_v2, l=self.l1)
                     dX = agg_x(self.reds[i][0]-self.blues[j][0])
                     dY = self.reds[i][1]-self.blues[j][1]
-                elif (self.model=='quadrato'):
+                elif (self.model=='quadrato' or self.model=='Blue_square_Red_rectangle' or self.model=='Blue_disk_Red_disk' or self.model=='Blue_disk_Red_annuluse'):            
                     dX = self.reds[i][0]-self.blues[j][0]
                     dY = self.reds[i][1]-self.blues[j][1]
                 plt.arrow(coda_x,coda_y,dX,dY,lw=.5,head_width=0.005, head_length=None,length_includes_head=True)#,alpha=.4)
